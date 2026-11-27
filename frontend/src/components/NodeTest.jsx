@@ -12,9 +12,25 @@ function NodeTest() {
         const data = await getNodes();
         setNodes(data);
       } catch (err) {
-        console.error("Failed to fetch nodes:", err);
-        setError("Could not load knowledge nodes.");
-      } finally {
+  console.error("API Error:", err);
+
+  if (err.response) {
+    // Django responded, but returned an error status
+    setError(
+      `Server error: ${err.response.status} - ${
+        JSON.stringify(err.response.data)
+      }`
+    );
+  } else if (err.request) {
+    // Request was sent, but no response was received
+    setError(
+      "No response from Django. Check your server and CORS settings."
+    );
+  } else {
+    // Something went wrong while configuring the request
+    setError(err.message);
+  }
+}finally {
         setLoading(false);
       }
     };
